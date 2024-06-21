@@ -1,36 +1,62 @@
 # https://docs.streamlit.io/
 # https://docs.streamlit.io/develop/api-reference
+# https://www.youtube.com/watch?v=D0D4Pa22iG0&t=41s
 
 import streamlit as st
 import pandas as pd
 import altair as alt
+from PIL import Image
+import os
 
+# Define the image path
+image_path_left = './images/stadium_img.webp'
+# image_path_right = './images/football_bw.jpg'
 
-# Path to your downloaded image (assuming it's a JPEG format)
-image_path = 'C:/Users/MikeD/Streamlit_football-app_1/images/football_bw.jpg'
+# Function to load image and handle errors
+def load_image(image_path):
+    if os.path.exists(image_path):
+        try:
+            img = Image.open(image_path)
+            return img
+        except Exception as e:
+            st.error(f"Error opening image: {e}")
+            return None
+    else:
+        st.error(f"Image not found: {image_path}")
+        return None
 
-# Custom CSS style to position image
+# Load images
+img_left = load_image(image_path_left)
+# img_right = load_image(image_path_right)
+
+# Custom CSS style to position images
 css = """
 <style>
 .top-left {
     position: absolute;
     top: 10px;
     left: 10px;
+    z-index: 1;
+}
+
+.top-right {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1;
 }
 </style>
 """
 
-# Display the image using Markdown with CSS
+# Display the images using st.image()
 st.markdown(css, unsafe_allow_html=True)
-st.markdown(
-    f"""
-    <div class="top-left">
-        <img src="{image_path}" width="100" alt="Top Left Image">
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+if img_left:
+    st.image(img_left, width=5, caption='', use_column_width=True)
+# if img_right:
+#     st.image(img_right, width=20, caption='Top Right Image', use_column_width=True)
 
+
+# ------------------------------------------------------------
 
 # Function to load data based on selected league
 @st.cache_data
@@ -146,8 +172,9 @@ else:
         y=alt.Y(y_axis)
     ).properties(
         width=600,
-        height=400,
-        title=f'Average {selected_shortened_metric} by {group_column}'
+        height=600,
+        title=f'Average {selected_shortened_metric} by {group_column}',
+        #background='#f0f0f0'  # Set a light background color
     )
 
     # Display the chart in the Streamlit app
